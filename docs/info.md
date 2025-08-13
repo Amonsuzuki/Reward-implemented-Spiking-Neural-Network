@@ -9,12 +9,12 @@ You can also include images in this folder and reference them in the markdown. E
 
 ## How it works
 
-Explain how your project works
+1 layer consists of 2 neurons loops to construct 8 layers spiking neural network. Each weights are loaded from memory.
 
 ## How to test
 
-Explain how to use your project
+Input 32 weights in 4 bits and dedicate address with 3 bits layer address and 1 bit node address. Then, input 2 values to execute.
 
 ## External hardware
 
-List external hardware used in your project (e.g. PMOD, LED display, etc), if any
+no extra hardware is needed.

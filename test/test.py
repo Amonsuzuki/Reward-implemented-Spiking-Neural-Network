@@ -5,6 +5,9 @@ import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import ClockCycles
 
+ADDR = 0b0110
+DATA = 0b0100_1011
+
 
 @cocotb.test()
 async def test_project(dut):
@@ -25,16 +28,30 @@ async def test_project(dut):
 
     dut._log.info("Test project behavior")
 
-    # Set the input values you want to test
-    dut.ui_in.value = 20
-    dut.uio_in.value = 30
+    # After reset, memory read should be 0
+    dut.ui_in.value = 0
+    dut.uio_in.value = ADDR
+    await ClockCycles(dut.clk, 1)
+    assert int(dut.uo_out.value) == 0x00, "Memory must be clearde on reset"
 
-    # Wait for one clock cycle to see the output values
+    # Prepare data and address
+    dut.ui_in.value = DATA
+    await ClockCycles(dut.clk, 1)
+
+    # Write Cycle
+    dut.uio_in.value = (1 << 4) | ADDR
+    await ClockCycles(dut.clk, 1)
+
+    # Read cycle
+    dut.uio_in.value = ADDR
     await ClockCycles(dut.clk, 1)
 
     # The following assersion is just an example of how to check the output values.
     # Change it to match the actual expected output of your module:
-    assert dut.uo_out.value == 50
+    assert int(dut.uo_out.value) == DATA, \
+        f"Readback mismatch: got {int(dut.uo_out.value):#04x}, expected {DATA:#04x}"
+
+    dut.log.info("Single write/read test passed")
 
     # Keep testing the module by changing the input values, waiting for
     # one or more clock cycles, and asserting the expected output values.
