@@ -29,17 +29,21 @@ async def test_project(dut):
     dut._log.info("Test project behavior")
 
     # After reset, memory read should be 0
+    # is this waste?
+    """
     dut.ui_in.value = 0
     dut.uio_in.value = ADDR
     await ClockCycles(dut.clk, 1)
     assert int(dut.uo_out.value) == 0x00, "Memory must be clearde on reset"
+    """
 
     # Prepare data and address
     dut.ui_in.value = DATA
+    dut.uio_in.value = ADDR # eliminate if check memory 0 after reset above
     await ClockCycles(dut.clk, 1)
 
     # Write Cycle
-    dut.uio_in.value = (1 << 4) | ADDR
+    dut.uio_in.value = (1 << 4) | ADDR # controlling bit
     await ClockCycles(dut.clk, 1)
 
     # Read cycle

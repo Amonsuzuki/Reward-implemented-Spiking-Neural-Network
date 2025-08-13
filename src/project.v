@@ -1,52 +1,40 @@
-/*
- * Copyright (c) 2024 Your Name
- * SPDX-License-Identifier: Apache-2.0
- */
-
 `default_nettype none
 
-module tt_um_snn (
-    input  wire [7:0] ui_in,    // Dedicated inputs
-    output wire [7:0] uo_out,   // Dedicated outputs
-    input  wire [7:0] uio_in,   // IOs: Input path
-    output wire [7:0] uio_out,  // IOs: Output path
-    output wire [7:0] uio_oe,   // IOs: Enable path (active high: 0=input, 1=output)
-    input  wire       ena,      // always 1 when the design is powered, so you can ignore it
-    input  wire       clk,      // clock
-    input  wire       rst_n     // reset_n - low to reset
+module tt_um_snn #(parameter WIDTH = 4) ( // use localparam
+	input wire [7:0] ui_in,
+	output wire [7:0] uo_out,
+	input wire [7:0] uio_in,// this is not used currently, can be error
+	output wire [7:0] uio_out,
+	output wire [7:0] uio_oe,
+	input wire ena,
+	input wire clk,
+	input wire rst_n
 );
 
+	reg [7:0] sum1;
+	reg [7:0] threshold1 = 8'h01;
 
-  //address control
-  wire [3:0] addr = {uio_in[3], uio_in[2:0]}; //MSB == node, layer
-  wire we = uio_in[4]; //write enable (active high)
-	
-  //memory array
-  reg [7:0] mem [0:15];
-  reg [7:0] rdata;
+	integer i;
 
-  integer i;
-  always @(posedge clk or negedge rst_n) begin
-	if (!rst_n) begin
-		for (i = 0; i < 16; i = i + 1)
-			mem[i] <= 8'h00;
-		rdata <= 8'h00;
-	end else begin
-		if (we) begin
-			mem[addr] <= ui_in;
-			rdata <= ui_in;
-		end else begin
-			rdata <= mem[addr];
+	always @* begin
+		// sum 2 inputs
+		sum1 = ui_in[3:0] + ui_in[7:4];
+		// check if outcome exceeds threshold
+		if (sum1 > threshold1) begin
+			// add inputs
+			sum1 = sum1 << 1;
 		end
+		else begin
+			sum1 = 8'h00;
+		end	
 	end
-  end
 
-  // All output pins must be assigned. If not used, assign to 0.
-  assign uo_out  = rdata;  // Example: ou_out is the sum of ui_in and uio_in
-  assign uio_out = 8'h00;
-  assign uio_oe  = 8'h00;
+	assign uo_out = sum1;
+	//assign uo_out = 8'b10110;
+	assign uio_out = 8'h00;
+	assign uio_oe = 8'h00;
 
-  // List all unused inputs to prevent warnings
-  wire _unused = ena;
+	wire _unused = ena;
+
 
 endmodule
