@@ -48,14 +48,14 @@ pinout:
 
 
   # Bidirectional pins
-  ui[0]: "input3-0"
-  ui[1]: "input3-1"
-  ui[2]: "input3-2"
-  ui[3]: "input3-3"
-  ui[4]: "input4-0"
-  ui[5]: "input4-1"
-  ui[6]: "input4-2"
-  ui[7]: "input4-3"
+  uio[0]: "input3-0"
+  uio[1]: "input3-1"
+  uio[2]: "input3-2"
+  uio[3]: "input3-3"
+  uio[4]: "input4-0"
+  uio[5]: "input4-1"
+  uio[6]: "input4-2"
+  uio[7]: "input4-3"
 
   #uio[0]: "layer_address-0"
   #uio[1]: "layer_address-1"
