@@ -43,6 +43,22 @@ module tt_um_snn ( // use localparam
 	integer i;
 
 	always @* begin
+		// initialize
+		next_input1 = 8'h00;
+		next_input2 = 8'h00;
+		next_input3 = 8'h00;
+		next_input4 = 8'h00;
+		stateA = 1'b0;
+		stateB = 1'b0;
+		ui_in_tmp = 8'h00;
+		uio_in_tmp = 8'h00;
+		weight1 = 5'b00000;
+		weight2 = 5'b00000;
+		weight3 = 5'b00000;
+		weight4 = 5'b00000;
+
+
+
 		// 1------------------------------------------------------------
 		// sum 2 inputs
 
@@ -53,6 +69,7 @@ module tt_um_snn ( // use localparam
 		sum2 = uio_in[7:4] + uio_in[3:0];
 */
 		// state
+
 		// shift
 		if (sum1 > threshold1) begin
 			stateA = 1'b1;
