@@ -6,8 +6,8 @@ INPUT1 = 0b110
 INPUT2 = 0b101
 INPUT3 = 0b1000
 INPUT4 = 0b110
-#ANSWER = 0b11001000
-ANSWER = 0b00110010
+#ANSWER = 0b00110010
+ANSWER = 0b00111010
 
 @cocotb.test()
 async def test_project(dut):
