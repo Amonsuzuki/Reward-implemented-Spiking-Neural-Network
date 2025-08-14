@@ -7,8 +7,8 @@ module tt_um_snn ( // use localparam
 	output wire [7:0] uio_out,
 	output wire [7:0] uio_oe,
 	input wire ena,
-	//input wire clk,
-	//input wire rst_n
+	input wire clk,
+	input wire rst_n
 );
 
 	wire [7:0] ui_hi = {4'b0000, ui_in[7:4]};
@@ -325,7 +325,9 @@ module tt_um_snn ( // use localparam
 	assign uio_out = 8'h00;
 	assign uio_oe = 8'h00;
 
-	wire _unused = ena;
+	wire _unused_ena = ena;
+	wire _unused_clk = clk;
+	wire _unused_rst_n = rst_n;
 
 
 endmodule
