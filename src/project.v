@@ -1,6 +1,6 @@
 `default_nettype none
 
-module tt_um_snn #(parameter WIDTH = 4) ( // use localparam
+module tt_um_snn ( // use localparam
 	input wire [7:0] ui_in,
 	output wire [7:0] uo_out,
 	input wire [7:0] uio_in,// this is not used currently, can be error
@@ -10,6 +10,12 @@ module tt_um_snn #(parameter WIDTH = 4) ( // use localparam
 	input wire clk,
 	input wire rst_n
 );
+
+	wire [7:0] ui_hi = {4'b0000, ui_in[7:4]};
+	wire [7:0] ui_lo = {4'b0000, ui_in[3:0]};
+	wire [7:0] uio_hi = {4'b0000, uio_in[7:4]};
+	wire [7:0] uio_lo = {4'b0000, uio_in[3:0]};
+	
 
 	reg [7:0] sum1;
 	reg [7:0] threshold1 = 8'h01;
@@ -39,8 +45,8 @@ module tt_um_snn #(parameter WIDTH = 4) ( // use localparam
 	always @* begin
 		// 1------------------------------------------------------------
 		// sum 2 inputs
-		sum1 = ui_in[7:4] + ui_in[3:0];
-		sum2 = uio_in[7:4] + uio_in[3:0];
+		sum1 = ui_hi + ui_lo;
+		sum2 = uio_hi + uio_lo;
 
 		// state
 		// shift
@@ -78,10 +84,10 @@ module tt_um_snn #(parameter WIDTH = 4) ( // use localparam
 
 		// sum up
 		sum2 = uio_in[7:4] + uio_in[3:0];
-		if (ui_in[7:0]) begin
+		if (ui_in != 8'b0) begin
 			ui_in_tmp = ui_in[7:0];
 		end
-		if (uio_in[7:0]) begin
+		if (uio_in != 8'b0) begin
 			uio_in_tmp = uio_in[7:0];
 		end	
 		sum1 = next_input1 + next_input2;
