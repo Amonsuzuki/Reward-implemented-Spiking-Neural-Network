@@ -1,235 +1,59 @@
+/*
+ * Copyright (c) 2025 Amon Suzuki
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 `default_nettype none
 
-module tt_um_snn ( // use localparam
+module tt_um_snn (
 	input wire [7:0] ui_in,
 	output wire [7:0] uo_out,
-	input wire [7:0] uio_in,// this is not used currently, can be error
+	input wire [7:0] uio_in,
 	output wire [7:0] uio_out,
 	output wire [7:0] uio_oe,
-	input wire ena,
+	input wire ena, // always 1 when the design is powered
 	input wire clk,
 	input wire rst_n
-);
+	);
 
-	wire [7:0] ui_hi = {4'b0000, ui_in[7:4]};
-	wire [7:0] ui_lo = {4'b0000, ui_in[3:0]};
-	wire [7:0] uio_hi = {4'b0000, uio_in[7:4]};
-	wire [7:0] uio_lo = {4'b0000, uio_in[3:0]};
+	// common
+	wire write_mode = uio_in[0];
 
-
-	reg [7:0] sum1;
-	reg [7:0] threshold1 = 8'h01;
-	reg [7:0] sum2;
-	reg [7:0] threshold2 = 8'h01;
-	reg stateA = 1'b0;
-	reg stateB = 1'b0;
-	reg signed [4:0] weight1 = 5'b00000;
-	reg signed [4:0] weight2 = 5'b00000;
-	reg signed [4:0] weight3 = 5'b00000;
-	reg signed [4:0] weight4 = 5'b00000;
-	reg [3:0] weight5 = 4'b0000;
-	reg [3:0] weight6 = 4'b0000;
-
-	// currently input is closed, not connected to next wire
-	// put input to registor while learning is ongoing
-	// why it can't be wire?
-	reg [7:0] next_input1 = 8'h00;
-	reg [7:0] next_input2 = 8'h00;
-	reg [7:0] next_input3 = 8'h00;
-	reg [7:0] next_input4 = 8'h00;
-	reg [7:0] ui_in_tmp;
-	reg [7:0] uio_in_tmp;
-
-	// weight update should be clock
-	always @* begin
-		// initialize
-		next_input1 = 8'h00;
-		next_input2 = 8'h00;
-		next_input3 = 8'h00;
-		next_input4 = 8'h00;
-		stateA = 1'b0;
-		stateB = 1'b0;
-		ui_in_tmp = 8'h00;
-		uio_in_tmp = 8'h00;
-		weight1 = 5'b00000;
-		weight2 = 5'b00000;
-		weight3 = 5'b00000;
-		weight4 = 5'b00000;
+	// memory
+	wire [3:0] addr = {uio_in[7], uio_in[6:4]};
+	wire [7:0] packet;
 
 
-
-		// 1------------------------------------------------------------
-		// sum up initial
-
-		sum1 = ui_hi + ui_lo;
-		sum2 = uio_hi + uio_lo;
-/*
-		sum1 = ui_in[7:4] + ui_in[3:0];
-		sum2 = uio_in[7:4] + uio_in[3:0];
-*/
-		// state
-
-		// shift
-		if (sum1 > threshold1) begin
-			stateA = 1'b1;
-			if (weight1 >= 0) begin
-				next_input1 = sum1 << weight1;
-			end
-			if (weight1 < 0) begin
-				next_input1 = sum1 >> -weight1;
-			end
-			if (weight2 >= 0) begin
-				next_input3 = sum1 << weight2;
-			end
-			if (weight2 < 0) begin
-				next_input3 = sum1 >> -weight2;
-			end
-		end
-
-		if (sum2 > threshold2) begin
-			stateB = 1'b1;
-			if (weight3 >= 0) begin
-				next_input2 = sum2 << weight3;
-			end
-			if (weight3 < 0) begin
-				next_input2 = sum2 >> -weight3;
-			end
-			if (weight4 >= 0) begin
-				next_input4 = sum2 << weight4;
-			end
-			if (weight4 < 0) begin
-				next_input4 = sum2 >> -weight4;
-			end
-		end
-
-		// 2------------------------------------------------------------
-		// sum up
-		if (ui_in != 8'b0) begin
-			ui_in_tmp = ui_in[7:0];
-		end
-		if (uio_in != 8'b0) begin
-			uio_in_tmp = uio_in[7:0];
-		end	
-		sum1 = next_input1 + next_input2;
-		sum2 = next_input3 + next_input4;
-
-		// weight update
-		if (sum1 > threshold1) begin
-			if (stateA == 1'b1) begin
-				if (weight1 != 5'b01111) begin
-					weight1 = weight1 + 5'b00001;
-				end
-			end
-			else if (weight1 != 5'b10000) begin
-				weight1 = weight1 - 5'b00001;
-			end
-
-			if (stateB == 1'b1) begin
-				if (weight3 != 5'b01111) begin
-					weight3 = weight3 + 5'b00001;
-				end
-			end
-			else if (weight3 != 5'b10000) begin
-				weight3 = weight3 - 5'b00001;
-			end
-		end
-		else begin
-			if (stateA == 1'b1 && weight1 != 5'b10000) begin
-				weight1 = weight1 - 5'b00001;
-			end
-			if (stateB == 1'b1 && weight3 != 5'b10000) begin
-				weight3 = weight3 - 5'b00001;
-			end
-			sum1 = 8'h00;
-		end
-
-		if (sum2 > threshold2) begin
-			if (stateA == 1'b1) begin
-				if  (weight2 != 5'b01111) begin
-					weight2 = weight2 + 5'b00001;
-				end
-			end
-			else if (weight2 != 5'b10000) begin
-				weight2 = weight2 - 5'b00001;
-			end
-			if (stateB == 1'b1) begin
-				if (weight4 != 5'b01111) begin
-					weight4 = weight4 + 5'b00001;
-				end
-			end
-			else if (weight4 != 5'b10000) begin
-				weight4 = weight4 - 5'b00001;
-			end
-		end
-		else begin
-			if (stateA == 1'b1 && weight2 != 5'b01111) begin
-				weight2 = weight2 - 5'b00001;
-			end
-			if (stateB == 1'b1 && weight4 != 5'b01111) begin
-				weight4 = weight4 - 5'b00001;
-			end
-			sum2 = 8'h00;
-		end
-
-		// state
-		if (sum1 > threshold1) begin
-			stateA = 1'b1;
-		end
-		else begin
-			stateA = 1'b0;
-		end
-		if (sum2 > threshold2) begin
-			stateB = 1'b1;
-		end
-		else begin
-			stateB = 1'b0;
-		end
+	Memory memory(
+		.ui_in(ui_in),
+		.addr(addr),
+		.write_mode(write_mode),
+		.packet(packet),
+		.clk(clk),
+		.rst_n(rst_n)
+	);
 
 
-		// shift
-		if (sum1 > threshold1) begin
-			stateA = 1'b1;
-			if (weight1 >= 0) begin
-				next_input1 = sum1 << weight1;
-			end
-			if (weight1 < 0) begin
-				next_input1 = sum1 >> -weight1;
-			end
-			if (weight2 >= 0) begin
-				next_input3 = sum1 << weight2;
-			end
-			if (weight2 < 0) begin
-				next_input3 = sum1 >> -weight2;
-			end
-		end
+	// multilayer
+	wire [7:0] prediction;
 
-		if (sum2 > threshold2) begin
-			stateB = 1'b1;
-			if (weight3 >= 0) begin
-				next_input2 = sum2 << weight3;
-			end
-			if (weight3 < 0) begin
-				next_input2 = sum2 >> -weight3;
-			end
-			if (weight4 >= 0) begin
-				next_input4 = sum2 << weight4;
-			end
-			if (weight4 < 0) begin
-				next_input4 = sum2 >> -weight4;
-			end
-		end
+	Multilayer multilayer(
+		.ui_in(ui_in),
+		.uio_in(uio_in),
+		.write_mode(write_mode),
+		.prediction(prediction),
+		.clk(clk),
+		.rst_n(rst_n)
+	);
+
+	assign uo_out = (write_mode) ? packet : prediction;
 
 
-	end
-
-	assign uo_out = (sum1 << weight5) + (sum2 << weight6);
-	//assign uo_out = 8'b10110;
 	assign uio_out = 8'h00;
 	assign uio_oe = 8'h00;
 
-	wire _unused_ena = ena;
-	wire _unused_clk = clk;
-	wire _unused_rst_n = rst_n;
+
+	wire _unused = ena;
 
 
 endmodule

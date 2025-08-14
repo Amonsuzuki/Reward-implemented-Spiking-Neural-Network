@@ -1,52 +1,35 @@
-/*
- * Copyright (c) 2024 Your Name
- * SPDX-License-Identifier: Apache-2.0
- */
-
 `default_nettype none
 
-module tt_um_memory (
-    input  wire [7:0] ui_in,    // Dedicated inputs
-    output wire [7:0] uo_out,   // Dedicated outputs
-    input  wire [7:0] uio_in,   // IOs: Input path
-    output wire [7:0] uio_out,  // IOs: Output path
-    output wire [7:0] uio_oe,   // IOs: Enable path (active high: 0=input, 1=output)
-    input  wire       ena,      // always 1 when the design is powered, so you can ignore it
-    input  wire       clk,      // clock
-    input  wire       rst_n     // reset_n - low to reset
+module Memory (
+	input wire [7:0] ui_in,
+	input wire [3:0] addr,
+	input wire write_mode,
+	input wire [7:0] packet,
+	input wire clk,
+	input wire rst_n
 );
-
-
-  //address control
-  wire [3:0] addr = {uio_in[3], uio_in[2:0]}; //MSB == node, layer
-  wire we = uio_in[4]; //write enable (active high)
-	
-  //memory array
+  // memory array allocation
   reg [7:0] mem [0:15];
-  reg [7:0] rdata;
+  //reg [7:0] read_data;
 
   integer i;
   always @(posedge clk or negedge rst_n) begin
+	// reset at the end
 	if (!rst_n) begin
 		for (i = 0; i < 16; i = i + 1)
 			mem[i] <= 8'h00;
-		rdata <= 8'h00;
+		//read_data <= 8'h00;
+	// write and read
 	end else begin
-		if (we) begin
+		if (write_mode) begin
 			mem[addr] <= ui_in;
-			rdata <= ui_in;
+		/*
 		end else begin
-			rdata <= mem[addr];
+			packet <= mem[addr];*/
 		end
 	end
   end
 
-  // All output pins must be assigned. If not used, assign to 0.
-  assign uo_out  = rdata;  // Example: ou_out is the sum of ui_in and uio_in
-  assign uio_out = 8'h00;
-  assign uio_oe  = 8'h00;
-
-  // List all unused inputs to prevent warnings
-  wire _unused = ena;
+  assign packet = mem[addr];
 
 endmodule

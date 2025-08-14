@@ -1,21 +1,17 @@
 `default_nettype none
 
-module tt_um_multilayer ( // use localparam
+module Multilayer ( // use localparam
 	input wire [7:0] ui_in,
-	output wire [7:0] uo_out,
-	input wire [7:0] uio_in,// this is not used currently, can be error
-	output wire [7:0] uio_out,
-	output wire [7:0] uio_oe,
-	input wire ena,
+	input wire [7:0] uio_in,
+	input wire write_mode,
+	output wire [7:0] prediction,
 	input wire clk,
 	input wire rst_n
 );
-
-	wire [7:0] ui_hi = {4'b0000, ui_in[7:4]};
-	wire [7:0] ui_lo = {4'b0000, ui_in[3:0]};
-	wire [7:0] uio_hi = {4'b0000, uio_in[7:4]};
-	wire [7:0] uio_lo = {4'b0000, uio_in[3:0]};
-
+	wire [7:0] ui_in1 = {4'b0000, ui_in[7:4]};
+	wire [7:0] ui_in2 = {4'b0000, ui_in[3:0]};
+	wire [7:0] uio_in3 = {4'b0000, uio_in[7:4]};
+	wire [7:0] uio_in4 = {4'b0000, uio_in[3:1]};
 
 	reg [7:0] sum1;
 	reg [7:0] threshold1 = 8'h01;
@@ -61,8 +57,8 @@ module tt_um_multilayer ( // use localparam
 		// 1------------------------------------------------------------
 		// sum up initial
 
-		sum1 = ui_hi + ui_lo;
-		sum2 = uio_hi + uio_lo;
+		sum1 = ui_in1 + ui_in2;
+		sum2 = uio_in3 + uio_in4;
 /*
 		sum1 = ui_in[7:4] + ui_in[3:0];
 		sum2 = uio_in[7:4] + uio_in[3:0];
@@ -222,14 +218,6 @@ module tt_um_multilayer ( // use localparam
 
 	end
 
-	assign uo_out = (sum1 << weight5) + (sum2 << weight6);
-	//assign uo_out = 8'b10110;
-	assign uio_out = 8'h00;
-	assign uio_oe = 8'h00;
-
-	wire _unused_ena = ena;
-	wire _unused_clk = clk;
-	wire _unused_rst_n = rst_n;
-
+	assign prediction = (sum1 << weight5) + (sum2 << weight6);
 
 endmodule
