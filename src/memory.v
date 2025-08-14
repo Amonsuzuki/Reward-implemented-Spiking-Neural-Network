@@ -4,7 +4,7 @@ module Memory (
 	input wire [7:0] ui_in,
 	input wire [3:0] addr,
 	input wire write_mode,
-	input wire [7:0] packet,
+	output wire [7:0] packet,
 	input wire clk,
 	input wire rst_n
 );
