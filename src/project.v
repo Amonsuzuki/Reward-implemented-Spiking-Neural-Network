@@ -10,12 +10,10 @@ module tt_um_snn ( // use localparam
 	input wire clk,
 	input wire rst_n
 );
-/*
 	wire [7:0] ui_hi = {4'b0000, ui_in[7:4]};
 	wire [7:0] ui_lo = {4'b0000, ui_in[3:0]};
 	wire [7:0] uio_hi = {4'b0000, uio_in[7:4]};
 	wire [7:0] uio_lo = {4'b0000, uio_in[3:0]};
-*/	
 
 	reg [7:0] sum1;
 	reg [7:0] threshold1 = 8'h01;
@@ -45,12 +43,8 @@ module tt_um_snn ( // use localparam
 	always @* begin
 		// 1------------------------------------------------------------
 		// sum 2 inputs
-/*
 		sum1 = ui_hi + ui_lo;
 		sum2 = uio_hi + uio_lo;
-*/
-		sum1 = ui_in[7:4] + ui_in[3:0];
-		sum2 = uio_in[7:4] + uio_in[3:0];
 		// state
 		// shift
 		if (sum1 > threshold1) begin
@@ -86,7 +80,6 @@ module tt_um_snn ( // use localparam
 		end
 
 		// sum up
-		sum2 = uio_in[7:4] + uio_in[3:0];
 		if (ui_in != 8'b0) begin
 			ui_in_tmp = ui_in[7:0];
 		end
