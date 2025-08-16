@@ -20,7 +20,9 @@ module tt_um_snn (
 	wire write_mode = uio_in[0];
 
 	// memory
-	wire [3:0] addr = {uio_in[7], uio_in[6:4]};
+	wire [3:0] addr_ext = {uio_in[7], uio_in[6:4]};
+	wire [3:0] addr_int;
+	wire [3:0] addr = write_mode ? addr_ext : addr_int;
 	wire [7:0] packet;
 
 
@@ -42,6 +44,8 @@ module tt_um_snn (
 		.uio_in(uio_in),
 		.write_mode(write_mode),
 		.prediction(prediction),
+		.addr_int(addr_int),
+		.packet(packet),
 		.clk(clk),
 		.rst_n(rst_n)
 	);

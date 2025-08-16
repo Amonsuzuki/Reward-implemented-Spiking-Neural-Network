@@ -5,6 +5,8 @@ module Multilayer ( // use localparam
 	input wire [7:0] uio_in,
 	input wire write_mode,
 	output wire [7:0] prediction,
+	output wire [3:0] addr_int,
+	input wire [7:0] packet,
 	input wire clk,
 	input wire rst_n
 );
@@ -19,10 +21,10 @@ module Multilayer ( // use localparam
 	reg [7:0] threshold2 = 8'h01;
 	reg stateA = 1'b0;
 	reg stateB = 1'b0;
-	reg signed [4:0] weight1 = 5'b00000;
-	reg signed [4:0] weight2 = 5'b00000;
-	reg signed [4:0] weight3 = 5'b00000;
-	reg signed [4:0] weight4 = 5'b00000;
+	reg signed [3:0] weight1 = 4'b0000;
+	reg signed [3:0] weight2 = 4'b0000;
+	reg signed [3:0] weight3 = 4'b0000;
+	reg signed [3:0] weight4 = 4'b0000;
 	reg [3:0] weight5 = 4'b0000;
 	reg [3:0] weight6 = 4'b0000;
 
@@ -47,10 +49,10 @@ module Multilayer ( // use localparam
 		stateB = 1'b0;
 		ui_in_tmp = 8'h00;
 		uio_in_tmp = 8'h00;
-		weight1 = 5'b00000;
-		weight2 = 5'b00000;
-		weight3 = 5'b00000;
-		weight4 = 5'b00000;
+		weight1 = 4'b0000;
+		weight2 = 4'b0000;
+		weight3 = 4'b0000;
+		weight4 = 4'b0000;
 
 
 
@@ -112,57 +114,57 @@ module Multilayer ( // use localparam
 		// weight update
 		if (sum1 > threshold1) begin
 			if (stateA == 1'b1) begin
-				if (weight1 != 5'b01111) begin
+				if (weight1 != 4'b0111) begin
 					weight1 = weight1 + 5'b00001;
 				end
 			end
-			else if (weight1 != 5'b10000) begin
+			else if (weight1 != 4'b1000) begin
 				weight1 = weight1 - 5'b00001;
 			end
 
 			if (stateB == 1'b1) begin
-				if (weight3 != 5'b01111) begin
+				if (weight3 != 4'b0111) begin
 					weight3 = weight3 + 5'b00001;
 				end
 			end
-			else if (weight3 != 5'b10000) begin
+			else if (weight3 != 4'b1000) begin
 				weight3 = weight3 - 5'b00001;
 			end
 		end
 		else begin
-			if (stateA == 1'b1 && weight1 != 5'b10000) begin
-				weight1 = weight1 - 5'b00001;
+			if (stateA == 1'b1 && weight1 != 4'b1000) begin
+				weight1 = weight1 - 4'b0001;
 			end
-			if (stateB == 1'b1 && weight3 != 5'b10000) begin
-				weight3 = weight3 - 5'b00001;
+			if (stateB == 1'b1 && weight3 != 4'b1000) begin
+				weight3 = weight3 - 4'b0001;
 			end
 			sum1 = 8'h00;
 		end
 
 		if (sum2 > threshold2) begin
 			if (stateA == 1'b1) begin
-				if  (weight2 != 5'b01111) begin
-					weight2 = weight2 + 5'b00001;
+				if  (weight2 != 4'b0111) begin
+					weight2 = weight2 + 4'b0001;
 				end
 			end
-			else if (weight2 != 5'b10000) begin
-				weight2 = weight2 - 5'b00001;
+			else if (weight2 != 4'b1000) begin
+				weight2 = weight2 - 4'b0001;
 			end
 			if (stateB == 1'b1) begin
-				if (weight4 != 5'b01111) begin
-					weight4 = weight4 + 5'b00001;
+				if (weight4 != 4'b0111) begin
+					weight4 = weight4 + 4'b0001;
 				end
 			end
-			else if (weight4 != 5'b10000) begin
-				weight4 = weight4 - 5'b00001;
+			else if (weight4 != 4'b1000) begin
+				weight4 = weight4 - 4'b0001;
 			end
 		end
 		else begin
-			if (stateA == 1'b1 && weight2 != 5'b01111) begin
-				weight2 = weight2 - 5'b00001;
+			if (stateA == 1'b1 && weight2 != 4'b0111) begin
+				weight2 = weight2 - 4'b0001;
 			end
-			if (stateB == 1'b1 && weight4 != 5'b01111) begin
-				weight4 = weight4 - 5'b00001;
+			if (stateB == 1'b1 && weight4 != 4'b0111) begin
+				weight4 = weight4 - 4'b0001;
 			end
 			sum2 = 8'h00;
 		end

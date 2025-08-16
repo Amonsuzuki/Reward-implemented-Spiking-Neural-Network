@@ -35,6 +35,5 @@ async def multilayer_test(dut):
 	await ClockCycles(dut.clk, 4)
 
 	assert dut.uo_out.value == 0b00110010
-	#assert dut.uo_out.value == 00000000
 	dut._log.info("multilayer test passed")
 
