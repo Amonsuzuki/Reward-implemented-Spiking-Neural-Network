@@ -19,8 +19,8 @@ module Multilayer #(
     // ---- (現状未使用の) 2本目インタフェース: そのまま残す ----
     output reg                    wb_req,
     output reg  [ADDR_W-1:0]      wb_addr,
-    input  wire                   wb_valid,
-    input  wire [DW-1:0]          wb_data,
+    input  wire                   wb_wdata,
+    input  wire [DW-1:0]          wb_ack,
 
     // ---- results ----
     output reg  [7:0]             prediction, // 最終出力
