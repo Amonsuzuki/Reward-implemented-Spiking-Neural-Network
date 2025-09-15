@@ -78,8 +78,8 @@ module tt_um_snn (
 		.w_data(ml_w_data),
 		.wb_req(ml_wb_req),
 		.wb_addr(ml_wb_addr),
-		.wb_valid(ml_wb_valid),
-		.wb_data(ml_wb_data),
+		.wb_wdata(ml_wb_data),
+		.wb_ack(ml_wb_ack),
 		.prediction(ml_prediction),
 		.done(ml_done)
 	);
