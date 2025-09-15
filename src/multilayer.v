@@ -185,7 +185,7 @@ module Multilayer #(
                 // --- L1: nibble和, しきい値判定 ---
                 S_L1_ACCUM: begin
                     l1_sum1 <= a_hi + a_lo;          // = ui_in[7:4] + ui_in[3:0]
-                    l1_sum2 <= b_hi + b_lo;          // = uio_in[7:4] + uio_in[3:1]（元コード踏襲）
+                    l1_sum2 <= b_hi + b_lo;          // = uio_in[7:4] + uio_in[3:1]
                     stateA  <= (a_hi + a_lo) > TH1;
                     stateB  <= (b_hi + b_lo) > TH2;
                 end
