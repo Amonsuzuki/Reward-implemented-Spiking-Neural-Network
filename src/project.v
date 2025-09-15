@@ -16,7 +16,7 @@ module tt_um_snn (
 	input   wire  rst_n                                              
 	);
 
-	localparam  ADDR_W  =  4;
+	localparam  ADDR_W  =  2;
 	localparam  DW      =  8;
 
 	// -----------------------

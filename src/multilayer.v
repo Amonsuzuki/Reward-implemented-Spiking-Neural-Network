@@ -1,7 +1,7 @@
 `default_nettype none
 
 module Multilayer #(
-    parameter ADDR_W = 4,
+    parameter ADDR_W = 2,
     parameter DW     = 8
 )(
     input  wire [7:0] ui_in,

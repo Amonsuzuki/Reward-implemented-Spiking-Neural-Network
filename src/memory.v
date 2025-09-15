@@ -1,7 +1,7 @@
 `default_nettype none
 
 module Memory #(
-	parameter ADDR_W = 4,
+	parameter ADDR_W = 2,
 	parameter DW = 8
 )(
 	input wire clk,
