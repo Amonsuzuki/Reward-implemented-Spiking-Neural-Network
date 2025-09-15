@@ -100,7 +100,7 @@ module Multilayer #(
         st_n   = st;
         w_req  = 1'b0;
         w_addr = '0;
-	wb_data = '0;
+	wb_wdata = '0;
 
         // 未使用IFはデフォルト0
         wb_req  = 1'b0;
