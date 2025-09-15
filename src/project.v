@@ -165,7 +165,7 @@ module tt_um_snn (
 		if (ml_wb_req) begin
 		  mem_we    <= 1'b1;
 		  mem_addr  <= ml_wb_addr;
-		  mem_wdata <= ml_wb_wdata;
+		  mem_wdata <= ml_wb_data;
 		  op_pending<= 1'b1;
 		  op_is_read<= 1'b0;
 
