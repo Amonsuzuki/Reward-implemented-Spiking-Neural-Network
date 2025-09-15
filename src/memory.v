@@ -12,7 +12,7 @@ module Memory #(
 	output reg [DW-1:0] rdata
 );
   // memory array allocation
-  reg [DW:0] mem [0:(1<<ADDR_W)-1];
+  reg [DW-1:0] mem [0:(1<<ADDR_W)-1];
 
   always @(posedge clk or negedge rst_n) begin
 	// reset at the end

@@ -19,8 +19,8 @@ module Multilayer #(
     // ---- (現状未使用の) 2本目インタフェース: そのまま残す ----
     output reg                    wb_req,
     output reg  [ADDR_W-1:0]      wb_addr,
-    input  wire                   wb_wdata,
-    input  wire [DW-1:0]          wb_ack,
+    output reg [DW-1:0]                   wb_wdata,
+    input  wire          wb_ack,
 
     // ---- results ----
     output reg  [7:0]             prediction, // 最終出力
@@ -42,7 +42,7 @@ module Multilayer #(
     wire [7:0] a_hi = {4'b0000, in_a[7:4]};
     wire [7:0] a_lo = {4'b0000, in_a[3:0]};
     wire [7:0] b_hi = {4'b0000, in_b[7:4]};
-    wire [7:0] b_lo = {4'b0000, in_b[3:1]};
+    wire [7:0] b_lo = {5'b00000, in_b[3:1]};
 
     // ---- L1結果/状態 ----
     reg [7:0] l1_sum1, l1_sum2;
@@ -100,6 +100,7 @@ module Multilayer #(
         st_n   = st;
         w_req  = 1'b0;
         w_addr = '0;
+	wb_data = '0;
 
         // 未使用IFはデフォルト0
         wb_req  = 1'b0;
@@ -210,10 +211,14 @@ module Multilayer #(
                     next2 <= stateB ? shift_by_signed(l1_sum2, w3) : 8'h00;
                     next4 <= stateB ? shift_by_signed(l1_sum2, w4) : 8'h00;
 
+		    l2_sum1 <= next1 + next2;
+		    l2_sum2 <= next3 + next4;
+		    /*
                     l2_sum1 <= (stateA ? shift_by_signed(l1_sum1, w1) : 8'h00)
                              + (stateB ? shift_by_signed(l1_sum2, w3) : 8'h00);
                     l2_sum2 <= (stateA ? shift_by_signed(l1_sum1, w2) : 8'h00)
                              + (stateB ? shift_by_signed(l1_sum2, w4) : 8'h00);
+		    */
 
                     prediction <= (l2_sum1 << w5) + (l2_sum2 << w6); // 元の式の枠に合わせ簡略（意味は不変のまま参照）
                 end
