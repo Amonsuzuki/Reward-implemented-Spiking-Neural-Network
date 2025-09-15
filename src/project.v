@@ -34,7 +34,7 @@ module tt_um_snn (
 	reg   [DW-1:0]      mem_wdata;
 	wire  [DW-1:0]      mem_rdata;// = ui_in, phase0
 
-	Memory memory #(
+	Memory #(
 		.ADDR_W(ADDR_W),
 		.DW(DW)
 	) memory_i(
