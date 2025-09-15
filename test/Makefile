@@ -5,7 +5,7 @@
 SIM ?= icarus
 TOPLEVEL_LANG ?= verilog
 SRC_DIR = $(PWD)/../src
-PROJECT_SOURCES = project.v dynamic_weight.v memory.v
+PROJECT_SOURCES = project.v multilayer.v memory.v
 
 ifneq ($(GATES),yes)
 
