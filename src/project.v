@@ -54,6 +54,11 @@ module tt_um_snn (
 	reg   ml_w_valid;   
 	reg   [DW-1:0]      ml_w_data;
 
+	wire                  ml_wb_req;
+	wire [ADDR_W-1:0]     ml_wb_addr;
+	wire [DW-1:0]         ml_wb_data;
+	reg                   ml_wb_ack;
+
 	wire  [7:0]      ml_prediction;
 	wire  ml_done;   
 	reg   ml_start;
@@ -71,6 +76,10 @@ module tt_um_snn (
 		.w_addr(ml_w_addr),
 		.w_valid(ml_w_valid),
 		.w_data(ml_w_data),
+		.wb_req(ml_wb_req),
+		.wb_addr(ml_wb_addr),
+		.wb_valid(ml_wb_valid),
+		.wb_data(ml_wb_data),
 		.prediction(ml_prediction),
 		.done(ml_done)
 	);
@@ -81,9 +90,8 @@ module tt_um_snn (
 	//  - When ML raises ml_w_req, latch addr
 	//  - Next cycle, mem_rdata is valid -> drive ml_w_valid/ml_w_data for 1 cycle
 	// -----------------------
-	reg  rd_pending;   
-	reg  [ADDR_W-1:0]  rd_addr_q;
-
+	reg  op_pending, op_is_read;
+	/*
 	always @(posedge clk or negedge rst_n) begin
 		if (!rst_n) begin
 			mem_we      <=  1'b0;
@@ -125,6 +133,61 @@ module tt_um_snn (
 				end
 			end
 		end
+	end*/
+
+	always @(posedge clk or negedge rst_n) begin
+ 	 if (!rst_n) begin
+	    mem_we <= 1'b0; mem_addr <= '0; mem_wdata <= '0;
+	    ml_w_valid <= 1'b0; ml_w_data <= '0;
+	    ml_wb_ack  <= 1'b0;
+	    op_pending <= 1'b0; op_is_read <= 1'b0;
+	    ml_start   <= 1'b0;
+	  end else begin
+	    ml_w_valid <= 1'b0;
+	    ml_wb_ack  <= 1'b0;
+	    mem_we     <= 1'b0;
+
+	    if (!phase_infer) begin
+	      // Phase0: ホスト書込
+	      mem_we    <= 1'b1;
+	      mem_addr  <= uio_in[7:4];
+	      mem_wdata <= ui_in;
+	      op_pending<= 1'b0;
+	      ml_start  <= 1'b0;
+
+	    end else begin
+	      // Phase1: 推論/学習
+	      // ml_doneに応じて開始パルス（必要なら）
+	      if (ml_done) ml_start <= 1'b1; else ml_start <= 1'b0;
+
+	      if (!op_pending) begin
+		// ① 書戻しを優先
+		if (ml_wb_req) begin
+		  mem_we    <= 1'b1;
+		  mem_addr  <= ml_wb_addr;
+		  mem_wdata <= ml_wb_wdata;
+		  op_pending<= 1'b1;
+		  op_is_read<= 1'b0;
+
+		// ② 読取り
+		end else if (ml_w_req) begin
+		  mem_addr  <= ml_w_addr;   // 同期読み出し：次サイクルにrdata有効
+		  op_pending<= 1'b1;
+		  op_is_read<= 1'b1;
+		end
+
+	      end else begin
+		// 前サイクルに発行した操作の返却
+		if (op_is_read) begin
+		  ml_w_data  <= mem_rdata;  // read data返却
+		  ml_w_valid <= 1'b1;       // 1サイクルだけ
+		end else begin
+		  ml_wb_ack  <= 1'b1;       // write完了通知を1サイクル
+		end
+		op_pending <= 1'b0;
+	      end
+	    end
+	  end
 	end
 
 
