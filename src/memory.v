@@ -1,35 +1,30 @@
 `default_nettype none
 
-module Memory (
-	input wire [7:0] ui_in,
-	input wire [3:0] addr,
-	input wire write_mode,
-	output wire [7:0] packet,
+module Memory #(
+	parameter ADDR_W = 4,
+	parameter DW = 8
+)(
 	input wire clk,
-	input wire rst_n
+	input wire rst_n,
+	input wire we,
+	input wire [ADDR_W-1:0] addr,
+	input wire [DW-1:0] wdata,
+	output reg [DW-1:0] rdata
 );
   // memory array allocation
-  reg [7:0] mem [0:15];
-  //reg [7:0] read_data;
+  reg [DW:0] mem [0:(1<<ADDR_W)-1];
 
-  integer i;
   always @(posedge clk or negedge rst_n) begin
 	// reset at the end
 	if (!rst_n) begin
-		for (i = 0; i < 16; i = i + 1)
-			mem[i] <= 8'h00;
-		//read_data <= 8'h00;
+		rdata <= '0;
 	// write and read
 	end else begin
-		if (write_mode) begin
-			mem[addr] <= ui_in;
-		/*
-		end else begin
-			packet <= mem[addr];*/
+		if (we) begin
+			mem[addr] <= wdata;
 		end
+		rdata <= mem[addr];
 	end
   end
-
-  assign packet = mem[addr];
 
 endmodule
